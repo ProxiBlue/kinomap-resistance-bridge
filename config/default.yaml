@@ -1,0 +1,86 @@
+# Kinomap Resistance Bridge - Default Configuration
+# Copy this to config/local.yaml and customize for your bike.
+
+# BLE / FTMS settings
+ble:
+  device_name: "RPi Resistance Bridge"
+  adapter: "hci0"                    # Bluetooth adapter (hci0 = built-in, hci1 = USB dongle)
+
+# Telemetry simulation
+telemetry:
+  notification_interval_ms: 1000     # How often to send Indoor Bike Data (ms)
+  base_speed_kmh: 20.0               # Simulated speed at resistance level 1
+  speed_resistance_factor: 0.8       # Speed decreases by this per resistance level
+  cadence_rpm: 70                    # Fixed simulated cadence
+  power_base_watts: 50               # Base power at resistance level 1
+  power_per_level_watts: 15          # Additional watts per resistance level
+
+# GPIO / relay settings
+gpio:
+  pin_up: 17                         # BCM pin for resistance UP relay
+  pin_down: 27                       # BCM pin for resistance DOWN relay
+  relay_active_low: false            # true if relay activates on LOW signal
+  button_hold_ms: 100                # How long to hold relay closed per press
+  inter_press_delay_ms: 150          # Delay between consecutive presses
+  mock: false                        # true to run without real GPIO (for dev/testing)
+
+# Speed sensor (Hall effect / reed switch on flywheel)
+speed_sensor:
+  enabled: true                      # Set false to use simulated telemetry instead
+  pin: 22                            # BCM pin for sensor signal (GPIO 22 = physical pin 15)
+  pull_up: true                      # Enable internal pull-up resistor (true for most Hall sensors)
+  debounce_ms: 5                     # Ignore pulses closer than this (ms)
+  timeout_s: 3.0                     # If no pulse for this long, speed = 0 (bike stopped)
+  flywheel_circumference_m: 0.50     # Flywheel circumference in meters (measure yours!)
+  gear_ratio: 5.0                    # Pedal-to-flywheel ratio (flywheel spins X times per pedal rev)
+  pulses_per_revolution: 1           # Number of magnets on flywheel (1 = one magnet, some bikes have 2-4)
+  #
+  # How to determine these values:
+  #   flywheel_circumference_m: Wrap a string around the flywheel, measure the length.
+  #     Or measure diameter and multiply by 3.14159.
+  #   gear_ratio: Turn the pedals exactly 1 revolution and count how many times the
+  #     flywheel spins. Typical range for exercise bikes: 3-8.
+  #
+  # Power estimation from speed sensor
+  power_estimation:
+    enabled: true                    # Estimate power from speed + resistance level
+    base_watts_per_kmh: 3.0          # Watts per km/h at resistance level 1
+    watts_per_level: 1.5             # Additional watts per km/h per resistance level
+
+# Resistance mapping
+bridge:
+  total_levels: 16                   # Total resistance levels on your bike
+  home_on_startup: true              # Press DOWN on startup to find level 1
+  home_presses: 20                   # Number of DOWN presses during homing
+  home_press_delay_ms: 200           # Delay between homing presses
+  initial_level: 1                   # Assumed level after homing
+  min_level: 1                       # Minimum allowed resistance level
+  max_level: 16                      # Maximum allowed resistance level
+  max_presses_per_command: 5         # Safety limit: max presses per single command
+
+  # Maps FTMS inclination (grade %) to bike resistance level.
+  # Values between points are linearly interpolated.
+  inclination_map:
+    -10.0: 1
+    -5.0: 2
+    -2.0: 3
+    0.0: 5
+    2.0: 7
+    5.0: 9
+    8.0: 12
+    10.0: 14
+    15.0: 16
+
+  # Maps FTMS resistance percentage (0-100) to bike resistance level.
+  # Used when Kinomap sends Set Target Resistance Level instead of inclination.
+  resistance_pct_map:
+    0: 1
+    25: 4
+    50: 8
+    75: 12
+    100: 16
+
+# Logging
+logging:
+  level: "INFO"                      # DEBUG, INFO, WARNING, ERROR
+  file: null                         # Log file path (null = stdout only)

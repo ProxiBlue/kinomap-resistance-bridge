@@ -1,0 +1,5 @@
+dbus-next>=0.2.3
+PyYAML>=6.0
+RPi.GPIO>=0.7.1; platform_machine == "aarch64" or platform_machine == "armv7l"
+gpiozero>=1.6.2; platform_machine == "aarch64" or platform_machine == "armv7l"
+pytest>=7.0
