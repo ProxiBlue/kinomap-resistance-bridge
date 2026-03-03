@@ -10,6 +10,8 @@
 
 This project turns a dumb exercise bike into a smart trainer by emulating a Bluetooth FTMS (Fitness Machine Service) device on a Raspberry Pi. The app sends resistance/gradient commands, and the RPi converts them into physical button presses on the bike via relay-controlled GPIO pins. A speed sensor provides real telemetry back to the app.
 
+There are other projects as this existing, but they all target the drive motor/belt side, to set the resistance there. My bioke has electronic push buttons to increase/decrease resistance. My route is to allow remote action of the buttons. So I am doing less invasing changes to the bike.
+
 ## How It Works
 
 ```
